@@ -1,0 +1,14 @@
+#  The contact options.
+
+- type: github
+  icon: "fab fa-github"
+
+- type: rss
+  icon: "fas fa-rss"
+  noblank: true
+
+# Cuando tengas la URL de tu perfil, descomenta esto (y añádela también en `social.links` de _config.yml):
+#
+# - type: linkedin
+#   icon: 'fab fa-linkedin'
+#   url:  'https://www.linkedin.com/in/tu-usuario'

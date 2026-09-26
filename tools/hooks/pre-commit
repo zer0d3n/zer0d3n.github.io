@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Bloquea el commit si gitleaks encuentra un secreto en lo que vas a subir.
+# Actívalo una vez por clon:  git config core.hooksPath tools/hooks
+set -euo pipefail
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-commit: gitleaks no está instalado (github.com/gitleaks/gitleaks/releases)." >&2
+  echo "pre-commit: instálalo o desactiva el hook con: git config --unset core.hooksPath" >&2
+  exit 1
+fi
+
+# gitleaks 8.19+ usa «gitleaks git --pre-commit»; las versiones anteriores, «gitleaks protect».
+if gitleaks git --help >/dev/null 2>&1; then
+  gitleaks git --pre-commit --staged --redact --no-banner
+else
+  gitleaks protect --staged --redact --no-banner
+fi
