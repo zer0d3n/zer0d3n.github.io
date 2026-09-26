@@ -1,78 +1,80 @@
 # zer0d3n.github.io
 
-Mi blog semanal sobre el camino hacia la seguridad cloud: <https://zer0d3n.github.io>. Está hecho con
-[Jekyll](https://jekyllrb.com) y el tema [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy), y se publica con
-GitHub Actions en cada push a `main`.
+My weekly blog about the road to cloud security: <https://zer0d3n.github.io>. Built with
+[Jekyll](https://jekyllrb.com) and the [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy) theme, and
+published with GitHub Actions on every push to `main`.
 
-## Publicar una entrada
+## Publishing a post
 
-1. En el repo del plan, genera el borrador de la semana: `python3 tools/borrador_blog.py` (sale de tu tracker y de
-   tus notas diarias y se queda allí, en privado, en `seguimiento/borradores-blog/`).
-2. Reescríbelo con tu voz y repasa la lista de «Nunca publiques» de abajo.
-3. Cópialo aquí como `_posts/AAAA-MM-DD-nombre.md`. El nombre, en minúsculas, sin tildes ni espacios, es la URL:
-   `_posts/2026-09-27-semana-01-02.md` → `https://zer0d3n.github.io/posts/semana-01-02/`.
-4. `git add`, `git commit` y `git push`.
+1. In the study plan repo, generate the week's draft: `python3 tools/borrador_blog.py` (built from the tracker and
+   the daily notes; it stays there, private, in `seguimiento/borradores-blog/`).
+2. Rewrite it in your own voice and go through the «Never publish» list below.
+3. Copy it here as `_posts/YYYY-MM-DD-name.md`. The name, lowercase with no spaces or accents, becomes the URL:
+   `_posts/2026-09-27-week-01-02.md` → `https://zer0d3n.github.io/posts/week-01-02/`.
+4. `git add`, `git commit` and `git push`.
 
-En un par de minutos la web está actualizada y tienes un aviso en **Issues** («LinkedIn: título de la entrada») con
-el texto listo para copiar y el enlace. Lo pegas en una publicación nueva de LinkedIn y cierras el aviso. Cada entrada
-genera un solo aviso, aunque la corrijas después.
+A couple of minutes later the site is updated and there is a new issue («LinkedIn: post title») with the text ready
+to copy and the link. Paste it into a new LinkedIn post and close the issue. Each post gets a single issue, even if
+you fix it later.
 
-### Cabecera de una entrada
+### Front matter
 
 ```yaml
 ---
-title: "Semana 3: endurecí una VM y terminé Bandit"
+title: "Week 3: I hardened a VM and finished Bandit"
 date: 2026-10-04 18:00:00 +0200
-categories: [Diario de aprendizaje, Bloque 1]
+categories: [Learning log, Block 1]
 tags: [learn-to-cloud, linux, bash]
-description: "Una frase: aparece en buscadores y en la tarjeta del enlace."
+description: "One sentence: it shows up in search engines and in the link preview."
 linkedin: |
-  El texto para LinkedIn, escrito para LinkedIn: qué hiciste, qué aprendiste
-  y una pregunta al final para tu red.
+  The text for LinkedIn, written for LinkedIn: what you did, what you learned
+  and a question at the end for your network.
 ---
 ```
 
-- **Programar una entrada:** ponle una fecha futura. Se publica sola la mañana de ese día (la pipeline se ejecuta
-  cada día a las 6:00 UTC) y el aviso de LinkedIn llega entonces.
-- **Sin aviso de LinkedIn:** `linkedin: false` en la cabecera.
-- **Borradores:** no uses `_drafts/`. Este repo es público y cualquiera puede leer los ficheros aunque la web no los
-  muestre. Los borradores se quedan en el repo privado del plan.
+- **Scheduling a post:** give it a future date. It goes live on its own the morning of that day (the pipeline runs
+  every day at 06:00 UTC) and the LinkedIn issue arrives then.
+- **No LinkedIn issue:** `linkedin: false` in the front matter.
+- **Drafts:** don't use `_drafts/`. This repo is public and anyone can read the files even if the site doesn't show
+  them. Drafts stay in the private study plan repo.
 
-## Ver la web en local
+## Preview locally
 
 ```bash
-bundle config set --local path vendor/bundle   # una sola vez
+bundle config set --local path vendor/bundle   # once
 bundle install
-bundle exec jekyll s --future                  # http://127.0.0.1:4000, incluidas las programadas
+bundle exec jekyll s --future                  # http://127.0.0.1:4000, scheduled posts included
 ```
 
-## Qué hace la pipeline
+## What the pipeline does
 
-`.github/workflows/pages-deploy.yml`, en cada push a `main`, cada mañana y a mano desde la pestaña Actions:
+`.github/workflows/pages-deploy.yml`, on every push to `main`, every morning and manually from the Actions tab:
 
-1. **secrets:** gitleaks revisa el historial. Si encuentra un secreto, no se publica nada.
-2. **build:** Jekyll construye la web y htmlproofer comprueba que no hay enlaces internos rotos.
-3. **deploy:** la publica en GitHub Pages.
-4. **linkedin:** `tools/linkedin.py` abre un aviso por cada entrada publicada que aún no lo tenga.
-   Pruébalo sin tocar GitHub con `python3 tools/linkedin.py --prueba`.
+1. **secrets:** gitleaks scans the history. If it finds a secret, nothing gets published.
+2. **build:** Jekyll builds the site and htmlproofer checks for broken internal links.
+3. **deploy:** publishes it to GitHub Pages.
+4. **linkedin:** `tools/linkedin.py` opens an issue for every published post that doesn't have one yet.
+   Try it without touching GitHub with `python3 tools/linkedin.py --dry-run`.
 
-## Configuración de una sola vez
+## One-time setup
 
-- **Settings → Pages → Build and deployment → Source: GitHub Actions.** Sin esto, el paso de deploy falla.
-- **LinkedIn en la web:** pon la URL de tu perfil en `social.links` de `_config.yml` y descomenta el bloque de
-  `_data/contact.yml`.
-- **Hook de gitleaks en tu máquina:** `git config core.hooksPath tools/hooks` (el mismo que en el repo del plan).
-- **dev.to (opcional, más lectores gratis):** en dev.to, Settings → Extensions → publicar desde RSS con
-  `https://zer0d3n.github.io/feed.xml` y la opción de marcar tu blog como URL canónica. Importa cada entrada como
-  borrador; la revisas y la publicas allí sin perder el crédito del original.
+- **Settings → Pages → Build and deployment → Source: GitHub Actions.** Without it, the deploy step fails.
+- **LinkedIn on the site (optional):** add your profile URL to `social.links` in `_config.yml` and uncomment the
+  block in `_data/contact.yml`.
+- **gitleaks hook on your machine:** `git config core.hooksPath tools/hooks`.
+- **Private commit email:** `git config user.email "<id>+zer0d3n@users.noreply.github.com"` (your address is in
+  GitHub → Settings → Emails), so this public repo doesn't expose your personal email.
+- **dev.to (optional, free extra readers):** on dev.to, Settings → Extensions → publish from RSS with
+  `https://zer0d3n.github.io/feed.xml`, marking this blog as the canonical URL. Each post is imported as a draft
+  that you review and publish there, and the original keeps the credit.
 
-## Nunca publiques
+## Never publish
 
-IDs de cuenta de AWS, ARNs completos, IPs, claves, tokens, contraseñas, flags o soluciones de retos (OverTheWire, los
-CTF de Learn to Cloud), ni nada de un cliente sin su permiso por escrito. Cuenta el método, no la respuesta.
-`tools/borrador_blog.py` avisa de lo más obvio, y gitleaks bloquea claves; el resto es tu revisión.
+AWS account IDs, full ARNs, IPs, keys, tokens, passwords, challenge flags or solutions (OverTheWire, the Learn to
+Cloud CTFs), or anything from a client without their written permission. Share the method, not the answer.
+`tools/borrador_blog.py` flags the obvious ones and gitleaks blocks keys; the rest is your review.
 
-## Licencia
+## License
 
-La plantilla es de [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy) (MIT, ver `LICENSE`). Los textos de las
-entradas son míos y se publican con la licencia que indica el pie de la web.
+The template comes from [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy) (MIT, see `LICENSE`). Post
+content is mine and published under the license shown in the site footer.

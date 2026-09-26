@@ -6,7 +6,7 @@ theme: jekyll-theme-chirpy
 # The language of the webpage › http://www.lingoes.net/en/translator/langcode.htm
 # If it has the same name as one of the files in folder `_data/locales`, the layout language will also be changed,
 # otherwise, the layout language will use the default value of 'en'.
-lang: es-ES
+lang: en
 
 # Change to your timezone › https://zones.arilyn.cc
 timezone: Europe/Madrid
@@ -16,11 +16,11 @@ timezone: Europe/Madrid
 
 title: zer0d3n # the main title
 
-tagline: Aprendiendo seguridad cloud, semana a semana # it will display as the subtitle
+tagline: Learning cloud security, one week at a time # it will display as the subtitle
 
 description: >- # used by seo meta and the atom feed
-  Cuaderno público de mi camino de cero a ingeniero de seguridad cloud: Linux, redes, AWS,
-  DevSecOps y detección, con Learn to Cloud. Una entrada por semana.
+  A public notebook of my path from zero to cloud security engineer: Linux, networking, AWS,
+  DevSecOps and detection, following Learn to Cloud. One post a week.
 
 # Fill in the protocol & hostname for your site.
 # E.g. 'https://username.github.io', note that it does not end with a '/'.
@@ -41,8 +41,8 @@ social:
   links:
     # The first element serves as the copyright owner's link
     - https://github.com/zer0d3n # change to your GitHub homepage
-    # Añade tu perfil de LinkedIn (y actívalo también en _data/contact.yml):
-    # - https://www.linkedin.com/in/tu-usuario
+    # Add your LinkedIn profile here (and enable it in _data/contact.yml too):
+    # - https://www.linkedin.com/in/your-username
 
 # Site Verification Settings
 webmaster_verifications:

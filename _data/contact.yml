@@ -7,8 +7,8 @@
   icon: "fas fa-rss"
   noblank: true
 
-# Cuando tengas la URL de tu perfil, descomenta esto (y añádela también en `social.links` de _config.yml):
+# Uncomment once you want your profile linked (add it to `social.links` in _config.yml too):
 #
 # - type: linkedin
 #   icon: 'fab fa-linkedin'
-#   url:  'https://www.linkedin.com/in/tu-usuario'
+#   url:  'https://www.linkedin.com/in/your-username'
