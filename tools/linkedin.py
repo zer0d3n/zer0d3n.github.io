@@ -18,6 +18,7 @@ import re
 import subprocess
 from datetime import date, datetime, time
 from pathlib import Path
+from urllib.parse import quote
 from zoneinfo import ZoneInfo
 
 import yaml
@@ -56,7 +57,8 @@ def hashtags(tags) -> str:
     return " ".join(f"#{t}" for t in clean[:5] if t)
 
 
-def published_posts(config: dict, now: datetime):
+def published_posts(config: dict, now: datetime, with_date: bool = False):
+    """Posts already on the site, as (path, front matter, url) or, with_date, (path, front matter, url, date)."""
     zone = ZoneInfo(config.get("timezone") or "UTC")
     base = (config.get("url") or "").rstrip("/") + (config.get("baseurl") or "")
     for p in sorted((ROOT / "_posts").glob("*.md")):
@@ -66,11 +68,12 @@ def published_posts(config: dict, now: datetime):
         fm = front_matter(p)
         if fm.get("published") is False or fm.get("linkedin") is False:
             continue
-        if publish_date(fm.get("date"), m.group(1), zone) > now:
+        when = publish_date(fm.get("date"), m.group(1), zone)
+        if when > now:
             continue  # scheduled: not on the site yet
         slug = fm.get("slug") or m.group(2)
         url = base + (fm.get("permalink") or f"/posts/{slug}/")
-        yield p, fm, url
+        yield (p, fm, url, when) if with_date else (p, fm, url)
 
 
 def issue_body(p: Path, fm: dict, url: str) -> str:
@@ -82,13 +85,18 @@ def issue_body(p: Path, fm: dict, url: str) -> str:
     tags = hashtags(fm.get("tags"))
     if tags and "#" not in text:
         text += f"\n\n{tags}"
+    post = f"{text}\n\n{url}"
     lines = [
         f"**{title}** is live: {url}",
         "",
-        "Paste this text into a new LinkedIn post (the copy button is at the top right of the block):",
+        f"**[Open LinkedIn with this text →](https://www.linkedin.com/feed/?shareActive=true&text={quote(post, safe='')})**",
+        "",
+        "That link opens the LinkedIn composer with the text already in it (desktop browser). LinkedIn doesn't "
+        "document it, so if the box opens empty, copy the text below (copy button at the top right of the block) "
+        f"or [share just the link](https://www.linkedin.com/sharing/share-offsite/?url={quote(url, safe='')}).",
         "",
         "````text",
-        f"{text}\n\n{url}",
+        post,
         "````",
         "",
     ]

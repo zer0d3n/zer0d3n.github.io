@@ -6,16 +6,25 @@ published with GitHub Actions on every push to `main`.
 
 ## Publishing a post
 
-1. In the study plan repo, generate the week's draft: `python3 tools/borrador_blog.py` (built from the tracker and
-   the daily notes; it stays there, private, in `seguimiento/borradores-blog/`).
-2. Rewrite it in your own voice and go through the «Never publish» list below.
-3. Copy it here as `_posts/YYYY-MM-DD-name.md`. The name, lowercase with no spaces or accents, becomes the URL:
-   `_posts/2026-09-27-week-01-02.md` → `https://zer0d3n.github.io/posts/week-01-02/`.
-4. `git add`, `git commit` and `git push`.
+Posts are written and published from the private study plan repo, with this repo cloned next to it
+(`../zer0d3n.github.io`):
 
-A couple of minutes later the site is updated and there is a new issue («LinkedIn: post title») with the text ready
-to copy and the link. Paste it into a new LinkedIn post and close the issue. Each post gets a single issue, even if
-you fix it later.
+- **With Claude Code:** ask for `/entrada-blog` in the study plan repo. It drafts the week's post in English from the
+  tracker and the daily notes, shows it to you with its LinkedIn text, and publishes it once you approve.
+- **By hand:** `python3 tools/borrador_blog.py` creates the draft in `seguimiento/borradores-blog/`; rewrite it, then
+  `python3 tools/publicar_blog.py seguimiento/borradores-blog/week-NN.md` checks it, copies it here as
+  `_posts/YYYY-MM-DD-week-NN.md`, commits and pushes after asking you.
+
+The file name, lowercase with no spaces or accents, becomes the URL:
+`_posts/2026-10-04-week-01-02.md` → `https://zer0d3n.github.io/posts/week-01-02/`.
+
+A couple of minutes after the push the site is updated and there is a new issue («LinkedIn: post title»). Its
+**Open LinkedIn with this text** link opens the composer with the text already written (desktop browser; LinkedIn
+doesn't document this, so if the box opens empty, copy the text from the block below the link). Post it and close
+the issue. Each post gets a single issue, even if you fix it later.
+
+If a week goes by without a post (8 days), a «Weekly post pending» issue opens, and it closes itself when the
+next post goes out.
 
 ### Front matter
 
@@ -51,10 +60,16 @@ bundle exec jekyll s --future                  # http://127.0.0.1:4000, schedule
 `.github/workflows/pages-deploy.yml`, on every push to `main`, every morning and manually from the Actions tab:
 
 1. **secrets:** gitleaks scans the history. If it finds a secret, nothing gets published.
-2. **build:** Jekyll builds the site and htmlproofer checks for broken internal links.
+2. **build:** `tools/check_posts.py` stops half-finished posts (draft placeholders left, missing front matter, a date
+   that doesn't match the file name, a LinkedIn text over 3,000 characters, something that looks like an account ID,
+   a key or a flag). Then Jekyll builds the site and htmlproofer checks for broken internal links.
 3. **deploy:** publishes it to GitHub Pages.
-4. **linkedin:** `tools/linkedin.py` opens an issue for every published post that doesn't have one yet.
-   Try it without touching GitHub with `python3 tools/linkedin.py --dry-run`.
+4. **linkedin:** `tools/linkedin.py` opens an issue for every published post that doesn't have one yet, and
+   `tools/weekly_reminder.py` opens or closes the weekly reminder (`REMINDER_DAYS` in the workflow; 0 turns it off).
+
+Pull requests run steps 1 and 2 only, so a change (or a Dependabot update) is checked before it reaches `main`.
+Everything can be tried locally without touching GitHub: `python3 tools/check_posts.py`,
+`python3 tools/linkedin.py --dry-run`, `python3 tools/weekly_reminder.py --dry-run`.
 
 ## One-time setup
 
@@ -72,7 +87,7 @@ bundle exec jekyll s --future                  # http://127.0.0.1:4000, schedule
 
 AWS account IDs, full ARNs, IPs, keys, tokens, passwords, challenge flags or solutions (OverTheWire, the Learn to
 Cloud CTFs), or anything from a client without their written permission. Share the method, not the answer.
-`tools/borrador_blog.py` flags the obvious ones and gitleaks blocks keys; the rest is your review.
+`tools/check_posts.py` and gitleaks block the obvious ones; the rest is your review.
 
 ## License
 
