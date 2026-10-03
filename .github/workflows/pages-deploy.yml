@@ -8,6 +8,11 @@ on:
       - README.md
       - LICENSE
 
+  # Pull requests only check (secrets, posts, build); nothing is deployed
+  pull_request:
+    branches:
+      - main
+
   # Every morning: publishes scheduled posts (future date) once their day arrives
   schedule:
     - cron: "0 6 * * *"
@@ -20,9 +25,9 @@ permissions:
   pages: write
   id-token: write
 
-# Allow one concurrent deployment
+# One run at a time per branch: a pull request never cancels a deployment of main
 concurrency:
-  group: "pages"
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -30,6 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      pull-requests: read
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -40,6 +46,7 @@ jobs:
         uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: false
 
   build:
     runs-on: ubuntu-latest
@@ -54,7 +61,13 @@ jobs:
           # If using the 'assets' git submodule from Chirpy Starter, uncomment above
           # (See: https://github.com/cotes2020/chirpy-starter/tree/main/assets)
 
+      - name: Check posts
+        run: |
+          pip install --quiet pyyaml
+          python3 tools/check_posts.py
+
       - name: Setup Pages
+        if: github.event_name != 'pull_request'
         id: pages
         uses: actions/configure-pages@v6
 
@@ -76,6 +89,7 @@ jobs:
             \-\-ignore-urls "/^http:\/\/127.0.0.1/,/^http:\/\/0.0.0.0/,/^http:\/\/localhost/"
 
       - name: Upload site artifact
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v5
         with:
           path: "_site${{ steps.pages.outputs.base_path }}"
@@ -86,13 +100,14 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
+    if: github.event_name != 'pull_request'
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
 
   linkedin:
-    # Only after deploying: opens an issue with the LinkedIn text for every new post
+    # Only after deploying: an issue with the LinkedIn text for every new post, and the weekly reminder
     runs-on: ubuntu-latest
     needs: deploy
     permissions:
@@ -109,3 +124,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ASSIGNEE: ${{ github.repository_owner }}
+
+      - name: Weekly post reminder
+        run: python3 tools/weekly_reminder.py
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ASSIGNEE: ${{ github.repository_owner }}
+          REMINDER_DAYS: 8
